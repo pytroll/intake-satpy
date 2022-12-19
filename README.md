@@ -34,9 +34,7 @@ different ways. A few examples are shown below.
 Once the `intake-satpy` package is installed, you can use this driver by
 calling `intake.open_satpy`. At the time of writing, it is best to provide
 as much information to configure/control Satpy as you can by passing the
-`scene_kwargs` and `load_kwargs`. Using the driver in this way has the same
-restrictions as the Satpy `Scene` object. Primarily, only one time step of
-data should be provided at a time for geostationary data.
+`scene_kwargs` and `load_kwargs`.
 
 ```
 import intake
@@ -62,6 +60,12 @@ By default, if `wishlist` is not provided as a load keyword argument
 (see above), then all available "reader" level products will be loaded. This
 means those that can be read directly from the file and does not include
 any Satpy "composites".
+
+Also by default the loaded dataset is "resampled" using Satpy's "native"
+resampler to the finest resolution of the loaded products. This allows
+for all products to exist in a single xarray `Dataset` object. This behavior
+can be customized by providing `resample_kwargs` to the source creation
+(`open_satpy` call).
 
 ### Catalog Usage
 

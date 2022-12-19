@@ -3,7 +3,8 @@ from glob import glob
 
 from intake.source.base import PatternMixin
 from intake_xarray.base import DataSourceMixin
-from satpy import Scene
+from satpy import MultiScene
+from satpy.multiscene import timeseries
 
 
 class SatpySource(DataSourceMixin, PatternMixin, ABC):
@@ -12,6 +13,7 @@ class SatpySource(DataSourceMixin, PatternMixin, ABC):
     def __init__(
         self,
         urlpath,
+        grouping_kwargs=None,
         scene_kwargs=None,
         load_kwargs=None,
         resample_kwargs=None,
@@ -21,11 +23,13 @@ class SatpySource(DataSourceMixin, PatternMixin, ABC):
     ):
         self.path_as_pattern = path_as_pattern
         self.urlpath = urlpath
+        self.grouping_kwargs = grouping_kwargs or {}
         self.scene_kwargs = scene_kwargs or {}
         self.load_kwargs = load_kwargs or {}
         self.resample_kwargs = resample_kwargs or {}
+        self._mscn = None
+        self._resampled_mscn = None
         self._scn = None
-        self._resampled_scn = None
         self._ds = None
         super().__init__(metadata=metadata, **kwargs)
 
@@ -35,14 +39,19 @@ class SatpySource(DataSourceMixin, PatternMixin, ABC):
             url = [url]
 
         url = list(self._glob_if_needed(url))
-        self._scn = Scene(filenames=url, **self.scene_kwargs)
-        self._scn.load(**self.load_kwargs)
+        self.grouping_kwargs.setdefault("reader", self.scene_kwargs.get("reader"))
+        self._mscn = MultiScene.from_files(url, scene_kwargs=self.scene_kwargs, **self.grouping_kwargs)
+
+        if "wishlist" not in self.load_kwargs:
+            self.load_kwargs["wishlist"] = self._mscn.first_scene.available_dataset_ids()
+        self._mscn.load(**self.load_kwargs)
 
         if not self.resample_kwargs:
-            self.resample_kwargs["destination"] = self._scn.finest_area()
+            self.resample_kwargs["destination"] = self._mscn.first_scene.finest_area()
             self.resample_kwargs["resampler"] = "native"
-        self._resampled_scn = self._scn.resample(**self.resample_kwargs)
-        self._ds = self._resampled_scn.to_xarray_dataset()
+        self._resampled_mscn = self._mscn.resample(**self.resample_kwargs)
+        self._scn = self._resampled_mscn.blend(timeseries)
+        self._ds = self._scn.to_xarray_dataset()
 
     @staticmethod
     def _glob_if_needed(urls_or_globs):

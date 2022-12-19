@@ -58,6 +58,11 @@ xarray `Dataset` object but data will be loaded into memory as numpy arrays.
 Care must be taken as the large satellite formats read by Satpy can quickly
 fill up your system's memory if loaded in this way.
 
+By default, if `wishlist` is not provided as a load keyword argument
+(see above), then all available "reader" level products will be loaded. This
+means those that can be read directly from the file and does not include
+any Satpy "composites".
+
 ### Catalog Usage
 
 The `satpy` driver can also be used in a catalog definition. See the
@@ -66,7 +71,6 @@ catalog definition file for an example. With a catalog like this you could then
 do:
 
 ```python
-
 import intake
 
 cat = intake.open_catalog("examples/local_abi_l1b.yaml")
@@ -74,3 +78,14 @@ source = cat.abi_l1b(base_dir="/data/satellite/abi")
 dataset = source.read_chunked()
 
 ```
+
+A wishlist of products to load can be provided to the source when creating it:
+
+```python
+cat = intake.open_catalog("examples/local_abi_l1b.yaml")
+source = cat.abi_l1b(base_dir="/data/satellite/abi", load_kwargs={"wishlist": ["C01"]})
+dataset = source.read_chunked()
+```
+
+As with the inline usage, if `wishlist` is not provided then all reader-level
+products will be loaded.

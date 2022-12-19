@@ -1,4 +1,5 @@
 ### PYTHON IGNORES ###
+__pycache__/
 *.py[cod]
 
 # C extensions

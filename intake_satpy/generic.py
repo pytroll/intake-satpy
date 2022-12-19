@@ -3,19 +3,22 @@ from glob import glob
 
 from intake.source.base import PatternMixin
 from intake_xarray.base import DataSourceMixin
-
 from satpy import Scene
 
 
 class SatpySource(DataSourceMixin, PatternMixin, ABC):
     name = "satpy"
 
-    def __init__(self, urlpath,
-                 scene_kwargs=None,
-                 load_kwargs=None,
-                 resample_kwargs=None,
-                 metadata=None,
-                 path_as_pattern=True, **kwargs):
+    def __init__(
+        self,
+        urlpath,
+        scene_kwargs=None,
+        load_kwargs=None,
+        resample_kwargs=None,
+        metadata=None,
+        path_as_pattern=True,
+        **kwargs,
+    ):
         self.path_as_pattern = path_as_pattern
         self.urlpath = urlpath
         self.scene_kwargs = scene_kwargs or {}

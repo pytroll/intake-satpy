@@ -1,0 +1,21 @@
+name: test-environment
+channels:
+  - conda-forge
+dependencies:
+  - coveralls
+  - coverage
+  - dask
+  - distributed
+  - fsspec
+  - intake
+  - intake-xarray
+  - netcdf4
+  - pip
+  - pytest
+  - pytest-cov
+  - pytest-lazy-fixture
+  - pyyaml
+  - s3fs
+  - satpy
+  - xarray-datatree
+  - zarr

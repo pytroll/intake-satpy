@@ -1,0 +1,17 @@
+sources:
+  abi_l1b:
+    description: Local ABI L1b NetCDF storage
+    driver: satpy
+    args:
+      urlpath: '{{ base_dir }}/OR*.nc'
+      scene_kwargs:
+        reader: abi_l1b
+      load_kwargs:
+        wishlist:
+          - C01
+          - C02
+    parameters:
+      base_dir:
+        description: Base directory of data to load
+        type: str
+        default: "{{ CATALOG_DIR }}"

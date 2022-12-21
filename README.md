@@ -67,7 +67,7 @@ for all products to exist in a single xarray `Dataset` object. This behavior
 can be customized by providing `resample_kwargs` to the source creation
 (`open_satpy` call).
 
-### Catalog Usage
+### Catalog Usage - Local
 
 The `satpy` driver can also be used in a catalog definition. See the
 [examples/local_abi_l1b.yaml](https://github.com/pytroll/intake-satpy/blob/main/examples/local_abi_l1b.yaml)
@@ -93,3 +93,23 @@ dataset = source.read_chunked()
 
 As with the inline usage, if `wishlist` is not provided then all reader-level
 products will be loaded.
+
+### Catalog Usage - S3
+
+Some of Satpy's readers can also read data from remote storage like S3 buckets.
+An example catalog is included in the `examples/` directory of the
+`intake-satpy` repository.
+
+Note that Satpy's performance for reading S3 files is currently very slow, but
+is being worked on. It is likely not suitable for loading data outside of the
+network where the S3 storage is (AWS in this example) until future updates to
+Satpy and NetCDF are made.
+
+```python
+import intake
+
+cat = intake.open_catalog("examples/aws_abi_l1b_20220101_18.yaml")
+source = cat.abi_l1b()
+dataset = source.read_chunked()
+
+```

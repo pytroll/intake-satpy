@@ -1,0 +1,12 @@
+sources:
+  abi_l1b:
+    description: Remote AWS ABI L1b NetCDF storage
+    driver: satpy
+    args:
+      urlpath: 's3://noaa-goes16/ABI-L1b-RadF/2022/001/18/OR*.nc'
+      scene_kwargs:
+        reader: abi_l1b
+        reader_kwargs:
+          storage_options:
+            abi_l1b:
+              anon: true

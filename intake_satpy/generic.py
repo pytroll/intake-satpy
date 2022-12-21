@@ -1,6 +1,7 @@
 from abc import ABC
 from glob import glob
 
+import s3fs
 from intake.source.base import PatternMixin
 from intake_xarray.base import DataSourceMixin
 from satpy import MultiScene
@@ -58,4 +59,9 @@ class SatpySource(DataSourceMixin, PatternMixin, ABC):
         for url_or_glob in urls_or_globs:
             if "*" not in url_or_glob and "?" not in url_or_glob:
                 yield url_or_glob
+            if url_or_glob.startswith("s3://"):
+                fs = s3fs.S3FileSystem(anon=True)
+                for url in fs.glob(url_or_glob):
+                    yield "s3://" + url
+                continue
             yield from glob(url_or_glob)
